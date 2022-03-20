@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Reddit Infinity List</string>
+    <string name="title">Reddit news header !</string>
+    <string name="star_icon">Star Icon</string>
+    <string name="tv_rate_text">123</string>
+    <string name="comments_number">45</string>
+    <string name="comments_icon">Comments Icon</string>
 </resources>
