@@ -2,14 +2,15 @@ package com.stambulo.redditinfinitylist.view
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.ExperimentalPagingApi
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import com.stambulo.redditinfinitylist.model.entity.DataX
 import com.stambulo.redditinfinitylist.repository.RedditRepoImp
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Delay
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,11 +23,6 @@ class RedditViewModel @Inject constructor(private val repository: RedditRepoImp)
 
     init { handleIntent() }
 
-    @OptIn(ExperimentalPagingApi::class)
-    fun getPosts(): Flow<PagingData<DataX>>{
-        return repository.getPosts().cachedIn(viewModelScope)
-    }
-
     private fun handleIntent() {
         viewModelScope.launch {
             redditIntent.consumeAsFlow().collect {
@@ -38,6 +34,7 @@ class RedditViewModel @Inject constructor(private val repository: RedditRepoImp)
     private fun fetchNews() {
         _redditState.value = RedditState.Loading
         viewModelScope.launch {
+            delay(800)   // ProgressBar demonstration
             try {
                 _redditState.value = RedditState.NewsSuccess(repository.getPosts())
             } catch (e: Exception){_redditState.value = RedditState.Error(e.localizedMessage)}

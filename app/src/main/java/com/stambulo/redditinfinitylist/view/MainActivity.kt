@@ -2,7 +2,9 @@ package com.stambulo.redditinfinitylist.view
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -11,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.stambulo.redditinfinitylist.databinding.ActivityMainBinding
 import com.stambulo.redditinfinitylist.model.entity.DataX
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -27,18 +30,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        loadData()
         setupUI()
         setupViewModel()
         observeViewModel()
-    }
-
-    private fun loadData() {
-        lifecycleScope.launchWhenCreated {
-            viewModel.getPosts().collectLatest {
-                adapter.submitData(it)
-            }
-        }
     }
 
     private fun setupUI() {
@@ -56,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.redditState.collect {
                 when (it) {
-//                    is RedditState.NewsSuccess -> { renderSuccess(it.success) }
+                    is RedditState.NewsSuccess -> { renderSuccess(it.success)}
                     is RedditState.Loading -> { renderLoading() }
                     is RedditState.Error -> { renderError(it) }
                     else -> {}
@@ -71,18 +65,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun renderSuccess(success: PagingData<DataX>) {
+    private fun renderSuccess(success: Flow<PagingData<DataX>>) {
         success.let {
             lifecycleScope.launchWhenCreated {
-                adapter.submitData(it)
+                it.collectLatest { adapter.submitData(it) }
             }
         }
-        binding.progressBar.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.GONE
     }
 
     private fun renderError(e: RedditState.Error) {
         binding.progressBar.visibility = View.GONE
         binding.recyclerView.visibility = View.GONE
+        Toast.makeText(applicationContext, e.toString(), Toast.LENGTH_SHORT).show()
     }
 }
