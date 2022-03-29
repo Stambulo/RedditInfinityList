@@ -2,25 +2,29 @@ package com.stambulo.redditinfinitylist.view
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stambulo.redditinfinitylist.repository.MainRepository
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.stambulo.redditinfinitylist.model.entity.DataX
+import com.stambulo.redditinfinitylist.repository.RedditRepoImp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RedditViewModel @Inject constructor(private val repository: MainRepository): ViewModel(){
+class RedditViewModel @Inject constructor(private val repository: RedditRepoImp): ViewModel(){
 
     val redditIntent = Channel<RedditIntent>(Channel.UNLIMITED)
     private val _redditState = MutableStateFlow<RedditState>(RedditState.Idle)
     val redditState: StateFlow<RedditState> get() = _redditState
 
-    init {
-        handleIntent()
+    init { handleIntent() }
+
+    @OptIn(ExperimentalPagingApi::class)
+    fun getPosts(): Flow<PagingData<DataX>>{
+        return repository.getPosts().cachedIn(viewModelScope)
     }
 
     private fun handleIntent() {

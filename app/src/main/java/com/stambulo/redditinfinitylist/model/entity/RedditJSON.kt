@@ -1,6 +1,8 @@
 package com.stambulo.redditinfinitylist.model.entity
 
+import com.google.gson.annotations.Expose
+
 data class RedditJSON(
-    val `data`: Data,
-    val kind: String
+    @Expose var data: Data,
+    @Expose var kind: String
 )

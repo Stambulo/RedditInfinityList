@@ -1,5 +1,10 @@
 package com.stambulo.redditinfinitylist.model.entity
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.google.gson.annotations.Expose
+
+@Entity
 data class DataX(
 //    val all_awardings: List<AllAwarding>,
 //    val allow_live_comments: Boolean,
@@ -38,7 +43,8 @@ data class DataX(
 //    val gildings: Gildings,
 //    val hidden: Boolean,
 //    val hide_score: Boolean,
-//    val id: String,
+    @PrimaryKey(autoGenerate = true)
+    var id: Int=0,
 //    val is_created_from_ads_ui: Boolean,
 //    val is_crosspostable: Boolean,
 //    val is_meta: Boolean,
@@ -64,7 +70,7 @@ data class DataX(
 //    val mod_reports: List<Any>,
 //    val name: String,
 //    val no_follow: Boolean,
-    val num_comments: Int,
+    @Expose var num_comments: Int,
 //    val num_crossposts: Int,
 //    val num_reports: Any,
 //    val over_18: Boolean,
@@ -80,7 +86,7 @@ data class DataX(
 //    val removed_by_category: Any,
 //    val report_reasons: Any,
 //    val saved: Boolean,
-    val score: Int,
+    @Expose var score: Int,
 //    val secure_media: Any,
 //    val secure_media_embed: SecureMediaEmbed,
 //    val selftext: String,
@@ -97,7 +103,7 @@ data class DataX(
 //    val thumbnail: String,
 //    val thumbnail_height: Int,
 //    val thumbnail_width: Int,
-    val title: String,
+    @Expose var title: String,
 //    val top_awarded_type: Any,
 //    val total_awards_received: Int,
 //    val treatment_tags: List<Any>,

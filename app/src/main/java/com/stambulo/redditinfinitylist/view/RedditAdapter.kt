@@ -14,7 +14,7 @@ class RedditAdapter : RecyclerView.Adapter<RedditAdapter.ViewHolder>() {
 
     init {
         success = arrayListOf(
-            Children(DataX(0, 0,"Class Initializer"),"kind : String")
+            Children(DataX(0, 0,0, "Class Initializer"),"kind : String")
         )
     }
 

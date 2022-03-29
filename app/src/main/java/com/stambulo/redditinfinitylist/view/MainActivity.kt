@@ -6,13 +6,14 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.stambulo.redditinfinitylist.databinding.ActivityMainBinding
-import com.stambulo.redditinfinitylist.model.entity.RedditJSON
+import com.stambulo.redditinfinitylist.model.entity.DataX
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import retrofit2.Response
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -20,16 +21,24 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: RedditViewModel by viewModels()
     private var _binding: ActivityMainBinding? = null
     private val binding get() = checkNotNull(_binding)
-    private val adapter by lazy(LazyThreadSafetyMode.NONE) {RedditAdapter()}
+    private val adapter by lazy(LazyThreadSafetyMode.NONE) {PagingAdapter()}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        loadData()
         setupUI()
         setupViewModel()
         observeViewModel()
+    }
+
+    private fun loadData() {
+        lifecycleScope.launchWhenCreated {
+            viewModel.getPosts().collectLatest {
+                adapter.submitData(it)
+            }
+        }
     }
 
     private fun setupUI() {
@@ -47,15 +56,10 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.redditState.collect {
                 when (it) {
-                    is RedditState.NewsSuccess -> {
-                        renderSuccess(it.success)
-                    }
-                    is RedditState.Loading -> {
-                        renderLoading()
-                    }
-                    is RedditState.Error -> {
-                        renderError(it)
-                    }
+//                    is RedditState.NewsSuccess -> { renderSuccess(it.success) }
+                    is RedditState.Loading -> { renderLoading() }
+                    is RedditState.Error -> { renderError(it) }
+                    else -> {}
                 }
             }
         }
@@ -67,10 +71,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun renderSuccess(success: Response<RedditJSON>) {
+    private fun renderSuccess(success: PagingData<DataX>) {
         success.let {
-            adapter.setData(success.body()!!.data.children)
-            adapter.notifyDataSetChanged()
+            lifecycleScope.launchWhenCreated {
+                adapter.submitData(it)
+            }
         }
         binding.progressBar.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE

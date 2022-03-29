@@ -1,5 +1,7 @@
 package com.stambulo.redditinfinitylist.api
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,9 +28,15 @@ class ApiHolder {
     fun provideRetrofit(@Named("baseUrl") baseUrl: String): Retrofit =
         Retrofit.Builder()
             .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson()))
             .client(creteOkHttpClient(MainInterceptor()))
             .build()
+
+    @Singleton
+    @Provides
+    fun gson(): Gson = GsonBuilder()
+        .excludeFieldsWithoutExposeAnnotation()
+        .create()
 
     @Singleton
     @Provides
